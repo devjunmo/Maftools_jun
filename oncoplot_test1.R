@@ -2,13 +2,18 @@
 # oncoplot
 
 library(maftools)
+library(tibble)
 
 #path to TCGA LAML MAF file
 laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')
 #clinical information containing survival information and histology. This is optional
 laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools')
 
-test_clin <- read.delim(laml.clin)
+test_maf <- tibble(read.delim(laml.maf))
+print(test_maf, n=3, width = Inf)
+test_clin <- tibble(read.delim(laml.clin))
+print(test_clin, n=3, width = Inf)
+
 test_clin
 
 laml = read.maf(maf = laml.maf,

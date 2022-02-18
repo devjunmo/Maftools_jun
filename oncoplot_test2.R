@@ -1,11 +1,20 @@
 library(maftools)
+library(tibble)
 
 #path to TCGA LAML MAF file
 laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools') 
 #clinical information containing survival information and histology. This is optional
 laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') 
-clin_test <- read.delim(laml.clin)
+
+tibble(read.delim(laml.maf))
+
+
+clin_test <- tibble(read.delim(laml.clin))
 clin_test
+
+
+
+
 
 laml = read.maf(maf = laml.maf, clinicalData = laml.clin)
 laml
@@ -131,17 +140,21 @@ mafSurvGroup(maf = laml, geneSet = c("DNMT3A", "FLT3"), time = "days_to_last_fol
 
 
 
-# 9.5 Comparing two cohorts (MAFs)
+# 9.5 Comparing two cohorts (MAFs) # 
 
 #Primary APL MAF
 primary.apl = system.file("extdata", "APL_primary.maf.gz", package = "maftools")
 primary.apl
-read.delim(primary.apl)
+tibble(read.delim(primary.apl))
 
 primary.apl = read.maf(maf = primary.apl)
+primary.apl = read.maf(maf = tibble(read.delim(primary.apl)))
+
 #Relapse APL MAF
 relapse.apl = system.file("extdata", "APL_relapse.maf.gz", package = "maftools")
+tibble(read.delim(relapse.apl))
 relapse.apl = read.maf(maf = relapse.apl)
+relapse.apl = read.maf(maf = tibble(read.delim(relapse.apl)))
 
 pt.vs.rt <- mafCompare(m1 = primary.apl, m2 = relapse.apl, m1Name = 'Primary', m2Name = 'Relapse', minMut = 5)
 print(pt.vs.rt)
@@ -151,13 +164,16 @@ forestPlot(mafCompareRes = pt.vs.rt, pVal = 0.1)
 
 # 9.5.2 Co-onco plots
 
-genes = c("PML", "RARA", "RUNX1", "ARID1B", "FLT3")
+?coOncoplot
+genes = c("PML", "RARA", "RUNX1", "ARID1B", "FLT3") # 위에서 코호트간 뮤테이션 카운트 차이가 컸던 상위 5개 genes
 coOncoplot(m1 = primary.apl, m2 = relapse.apl, m1Name = 'PrimaryAPL', m2Name = 'RelapseAPL', genes = genes, removeNonMutated = TRUE)
 
 
 # 9.5.3 Co-bar plots
 
 coBarplot(m1 = primary.apl, m2 = relapse.apl, m1Name = "Primary", m2Name = "Relapse")
+
+
 
 # 9.5.4 Lollipop plot-2
 
@@ -174,6 +190,9 @@ dgi = drugInteractions(maf = laml, fontSize = 0.75)
 
 dnmt3a.dgi = drugInteractions(genes = "DNMT3A", drugs = TRUE)
 
+#Printing selected columns.
+dnmt3a.dgi[,.(Gene, interaction_types, drug_name, drug_claim_name)]
+
 
 
 
@@ -182,6 +201,53 @@ dnmt3a.dgi = drugInteractions(genes = "DNMT3A", drugs = TRUE)
 OncogenicPathways(maf = laml)
 
 PlotOncogenicPathways(maf = laml, pathways = "RTK-RAS")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
