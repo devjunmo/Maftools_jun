@@ -1,6 +1,7 @@
 getwd()
-
-setwd('C:/Users/user/Desktop/git_manager/Maftools_jun')
+setwd('C:/Users/yajum/Desktop/git_manager')
+# setwd('C:/Users/user/Desktop/git_manager/Maftools_jun')
+setwd('C:/data/maf/mutect2/DP_AF_filtered_maf/exonic_maf')
 getwd()
 
 
@@ -11,7 +12,9 @@ root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/exonic_m
 old.path <- setwd(root_dir)
 
 # clinl.info = './Tera_comp/Tera_cohort_info_220321.csv'
-clinl.info = './cohort_comp/IPS_cohort_info_220321.csv' # ips, heso
+# clinl.info = './cohort_comp/IPS_cohort_info_220321.csv' # ips, heso
+# clinl.info = './Tera_vs_lateIPS/tera_lateIPS.csv'
+clinl.info = './Tera_vs_cancer/Tera_vs_cancer.csv'
 
 getwd()
 
@@ -32,12 +35,14 @@ class(mutation_count_lst)
 samplesVec <- c()
 mutCount <- c()
 
-for(file in f_lst){
+for(f in f_lst){
   
-  f_name <- strsplit(file, '_')[[1]][1]
+  f_name <- strsplit(f, '_')[[1]][1]
   print(f_name)
+  tmp_df <- read.delim(f)
+  tmp_df <- tmp_df %>% filter(Variant_Type=='SNP')
   samplesVec <- c(samplesVec, f_name)
-  mut_count <- dim(read.delim(file))[1]
+  mut_count <- dim(tmp_df)[1]
   mutCount <- c(mutCount, mut_count)
   
 }
@@ -64,6 +69,7 @@ print(clin.info.df, width = Inf) # 28 x 6
 clin.info.df <- select(clin.info.df, 
                        Tumor_Sample_Barcode, Origin_sample, 
                        Origin_class, Donor_age, Mt_mutation)
+
 
 print(clin.info.df, width = Inf, n=Inf) # 28 x 6
 
@@ -92,9 +98,62 @@ print(joined_maf, n =Inf)
 unique(joined_maf$Origin_sample)
 
 
-maf_class <- unique(joined_maf$Origin_class)
-maf_class
 
+# 단순 뮤테이션 플로팅 - Late passage vs Tera
+joined_maf
+ggplot(joined_maf, aes(x=reorder(Tumor_Sample_Barcode, plot_order),
+                         y=log(Mutation_Count),
+                         fill=Passage)) +
+  geom_bar(stat="identity", position = 'dodge') + 
+  theme(axis.text.x=element_text(angle=60, hjust=1)) +
+  geom_text(aes(label=Mutation_Count), vjust=1.6, color="black", size=3.5)
+
+joined_maf
+
+
+joined_maf_grpby <- joined_maf %>%
+  group_by(Origin_class) %>%
+  summarise(mean_mutations = mean(Mutation_Count))
+
+joined_maf_grpby
+
+
+ggplot(joined_maf_grpby, 
+       aes(x=Origin_class, y=log(mean_mutations), fill=Origin_class)) +
+  geom_bar(stat="identity", position = 'dodge') +
+  geom_text(aes(label=round(mean_mutations, digits = 2)), vjust=1.6, color="black", size=3.5)
+
+
+
+
+# 단순 뮤테이션 플로팅 - Tera vs cancer
+joined_maf
+ggplot(joined_maf, aes(x=reorder(Tumor_Sample_Barcode, order),
+                       y=log(Mutation_Count),
+                       fill=Type)) +
+  geom_bar(stat="identity", position = 'dodge') + 
+  theme(axis.text.x=element_text(angle=60, hjust=1)) +
+  geom_text(aes(label=Mutation_Count), vjust=1.6, color="black", size=3.5)
+
+joined_maf
+
+
+joined_maf_grpby <- joined_maf %>%
+  group_by(Origin_class) %>%
+  summarise(mean_mutations = mean(Mutation_Count))
+
+joined_maf_grpby
+
+
+ggplot(joined_maf_grpby, 
+       aes(x=Origin_class, y=log(mean_mutations), fill=Origin_class)) +
+  geom_bar(stat="identity", position = 'dodge') +
+  geom_text(aes(label=round(mean_mutations, digits = 2)), vjust=1.6, color="black", size=3.5)
+
+
+
+
+# Origin별 
 joined_maf_1 <- arrange(joined_maf,
                       Origin_class, Origin_sample)
 joined_maf_1
@@ -133,6 +192,23 @@ ggplot(joined_maf_1, aes(x=reorder(Tumor_Sample_Barcode, Origin_class),
   geom_bar(stat="identity", position = 'dodge') + 
   theme(axis.text.x=element_text(angle=60, hjust=1)) +
   geom_text(aes(label=c(annotTxt)), vjust=1.6, color="black", size=3.5)
+
+joined_maf_1
+
+
+joined_maf_1_grpby <- joined_maf_1 %>%
+  group_by(Origin_class_plot) %>%
+  summarise(mean_mutations = mean(Mutation_Count))
+
+joined_maf_1_grpby
+
+
+ggplot(joined_maf_1_grpby, 
+       aes(x=Origin_class_plot, y=log(mean_mutations), fill=Origin_class_plot)) +
+  geom_bar(stat="identity", position = 'dodge') +
+  geom_text(aes(label=round(mean_mutations, digits = 2)), vjust=1.6, color="black", size=3.5)
+
+
 
 
 
@@ -259,6 +335,19 @@ ggplot(joined_maf_age, aes(x=Tumor_Sample_Barcode,
 
 
 
+joined_maf_age_grpby <- joined_maf_age %>%
+  group_by(Donor_age) %>%
+  summarise(mean_mutations = mean(Mutation_Count))
+
+joined_maf_age_grpby
+
+
+ggplot(joined_maf_age_grpby, 
+       aes(x=Donor_age, y=(mean_mutations), fill=Donor_age)) +
+  geom_bar(stat="identity", position = 'dodge') +
+  geom_text(aes(label=round(mean_mutations, digits = 2)), vjust=1.6, color="black", size=3.5)
+
+
 
 
 # mt mutations 에 따라 mutation plotting
@@ -289,6 +378,7 @@ ggplot(joined_maf_mtDNA_na.omit, aes(x=Tumor_Sample_Barcode,
   geom_text(aes(label=Mutation_Count), vjust=1.6, color="black", size=3.5)
 
 
+
 ggplot(joined_maf_mtDNA_na.omit, aes(x=reorder(Tumor_Sample_Barcode, mt_for_plot),
                            y=log(Mutation_Count),
                            fill=Mt_mutation)) +
@@ -307,7 +397,7 @@ joined_maf_mtDNA_mean_exceptCancer <- joined_maf_mtDNA_na.omit %>%
 
 joined_maf_mtDNA_mean_exceptCancer
 
-print(joined_maf_mtDNA_na.omit.filter, n=Inf)
+# print(joined_maf_mtDNA_na.omit.filter, n=Inf)
 
 
 ggplot(joined_maf_mtDNA_mean_exceptCancer, 
