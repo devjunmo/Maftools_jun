@@ -2,13 +2,16 @@ library(maftools)
 library(tibble)
 library(dplyr)
 
+# python에서 onco용 하나의 maf파일 생성 후 진행 
+
 # root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/exonic_maf/cohort_comp'
 # root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/exonic_maf/diff_comp/cohort_comp'
-root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/Diff_whole_regions/cohort_comp'
+# root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/Diff_whole_regions/cohort_comp'
+root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/exonic_maf/Tera_comp'
 # maf_f_name = 'ips_cohort_maf_for_cooncoplot.maf'
-maf_f_name = 'diff_cohort_for_oncoplot.maf'
+maf_f_name = 'Tera_cohort_for_oncoplot.maf'
 # clin_f_name = 'IPS_cohort_info.csv'
-clin_f_name = 'diff_cohort_info.csv'
+clin_f_name = 'Tera_cohort_info.csv'
 
 getwd()
 old.path <- setwd(root_dir)
@@ -69,8 +72,10 @@ draw_oncoplot(laml, clinicalFeatures, annotationOrder, titleText)
 
 
 # Tera
-clinicalFeatures=c('Origin_sample', 'Donor_age', 'Mt_mutation')
-annotationOrder=c('AM168', 'AM172', 'AM179', 'Blo86', 'Blo172',
+clinicalFeatures=c('Origin_sample', 'Donor_age', 
+                   'Mt_mutation', 'hyper_mutation_issue')
+
+annotationOrder=c('AM168', 'AM172', 'AM179', 'Blo86', 'Blo154', 'Blo172',
                   'Fib86')
 titleText='Tera Oncoplot: sort by origin samples'
 
