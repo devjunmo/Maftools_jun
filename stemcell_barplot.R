@@ -1,9 +1,10 @@
 getwd()
-setwd('C:/Users/yajum/Desktop/git_manager')
-# setwd('C:/Users/user/Desktop/git_manager/Maftools_jun')
-setwd('C:/data/maf/mutect2/DP_AF_filtered_maf/exonic_maf')
+# setwd('C:/Users/yajum/Desktop/git_manager')
+setwd('C:/Users/user/Desktop/git_manager/Maftools_jun')
+# setwd('C:/data/maf/mutect2/DP_AF_filtered_maf/exonic_maf')
 getwd()
 
+setwd('C:/Users/user/Desktop/git_manager/Maftools_jun')
 
 library(tibble)
 library(dplyr)
@@ -11,10 +12,10 @@ library(dplyr)
 root_dir = 'E:/stemcell/somatic_analysis/maf/mutect2/DP_AF_filtered_maf/exonic_maf'
 old.path <- setwd(root_dir)
 
-# clinl.info = './Tera_comp/Tera_cohort_info_220321.csv'
+clinl.info = './Tera_comp/Tera_cohort_info_220321.csv'
 # clinl.info = './cohort_comp/IPS_cohort_info_220321.csv' # ips, heso
 # clinl.info = './Tera_vs_lateIPS/tera_lateIPS.csv'
-clinl.info = './Tera_vs_cancer/Tera_vs_cancer.csv'
+# clinl.info = './Tera_vs_lateIPS/tera_lateIPS.csv'
 
 getwd()
 
@@ -112,14 +113,16 @@ joined_maf
 
 
 joined_maf_grpby <- joined_maf %>%
-  group_by(Origin_class) %>%
+  group_by(Type) %>%
   summarise(mean_mutations = mean(Mutation_Count))
+
+joined_maf_grpby$order <- c(1, 3, 2, 4, 6, 5, 7)
 
 joined_maf_grpby
 
 
 ggplot(joined_maf_grpby, 
-       aes(x=Origin_class, y=log(mean_mutations), fill=Origin_class)) +
+       aes(x=reorder(Type, order), y=(mean_mutations), fill=Type)) +
   geom_bar(stat="identity", position = 'dodge') +
   geom_text(aes(label=round(mean_mutations, digits = 2)), vjust=1.6, color="black", size=3.5)
 
@@ -192,6 +195,7 @@ ggplot(joined_maf_1, aes(x=reorder(Tumor_Sample_Barcode, Origin_class),
   geom_bar(stat="identity", position = 'dodge') + 
   theme(axis.text.x=element_text(angle=60, hjust=1)) +
   geom_text(aes(label=c(annotTxt)), vjust=1.6, color="black", size=3.5)
+
 
 joined_maf_1
 
@@ -325,8 +329,12 @@ print(joined_maf_age, n=Inf)
 
 library(ggplot2)
 
+c(rep(1, 11), rep(2, 5))
 
-ggplot(joined_maf_age, aes(x=Tumor_Sample_Barcode,
+joined_maf_age$order <- c(rep(1, 11), rep(2, 5))
+joined_maf_age
+
+ggplot(joined_maf_age, aes(x=reorder(Tumor_Sample_Barcode, order),
                          y=log(Mutation_Count),
                          fill=Donor_age)) +
   geom_bar(stat="identity", position = 'dodge') +
@@ -368,6 +376,8 @@ joined_maf_mtDNA_na.omit$mt_for_plot <-
   as.numeric(joined_maf_mtDNA_na.omit$mt_for_plot)
 
 print(joined_maf_mtDNA_na.omit, n=Inf)
+
+joined_maf_mtDNA_na.omit$order <- c(1, 2, 2, 2, 3, 3, 3, 4, 4, 4, )
 
 
 ggplot(joined_maf_mtDNA_na.omit, aes(x=Tumor_Sample_Barcode,
